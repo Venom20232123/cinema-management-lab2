@@ -20,7 +20,7 @@
 <body>
 
     <h1>Управління кінотеатром (Лабораторна №4)</h1>
-    <button class="btn-reset" onclick="resetAllData()">💥 Скинути та очистити пам'ять (LocalStorage)</button>
+    <button class="btn-reset" onclick="resetToDefault()">💥 Відновити базові таблиці</button>
 
     <!-- ТАБЛИЦЯ 1: ФІЛЬМИ -->
     <h2>Список фільмів</h2>
@@ -39,14 +39,14 @@
         </thead>
         <tbody id="movies-body">
             <tr class="form-row">
-                <td><input type="number" id="movie-id" placeholder="ID" required></td>
-                <td><input type="text" id="movie-title" placeholder="Назва" required></td>
-                <td><input type="text" id="movie-director" placeholder="Режисер" required></td>
-                <td><input type="text" id="movie-genre" placeholder="Жанр" required></td>
-                <td><input type="number" id="movie-duration" placeholder="Хв" required></td>
-                <td><input type="number" id="movie-year" placeholder="Рік" required></td>
-                <td><input type="text" id="movie-age" placeholder="Обмеження" required></td>
-                <td><button class="btn-add" onclick="addMovie()">Додати</button></td>
+                <td><input type="number" id="movie-id" placeholder="ID"></td>
+                <td><input type="text" id="movie-title" placeholder="Назва"></td>
+                <td><input type="text" id="movie-director" placeholder="Режисер"></td>
+                <td><input type="text" id="movie-genre" placeholder="Жанр"></td>
+                <td><input type="number" id="movie-duration" placeholder="Хв"></td>
+                <td><input type="number" id="movie-year" placeholder="Рік"></td>
+                <td><input type="text" id="movie-age" placeholder="Обмеження"></td>
+                <td><button class="btn-add" onclick="addMovieRow()">Додати</button></td>
             </tr>
         </tbody>
     </table>
@@ -57,8 +57,8 @@
         <thead>
             <tr>
                 <th>ID сеансу</th>
-                <th>Назва фільму (вибір зі списку)</th>
-                <th>Номер залу (вибір зі списку)</th>
+                <th>Назва фільму (зі списку)</th>
+                <th>Номер залу (зі списку)</th>
                 <th>Дата та час</th>
                 <th>Ціна квитка</th>
                 <th>Технологія</th>
@@ -67,13 +67,13 @@
         </thead>
         <tbody id="sessions-body">
             <tr class="form-row">
-                <td><input type="number" id="session-id" placeholder="ID" required></td>
+                <td><input type="number" id="session-id" placeholder="ID"></td>
                 <td><select id="session-title-select"></select></td>
                 <td><select id="session-hall-select"></select></td>
-                <td><input type="text" id="session-datetime" placeholder="ДД.ММ.РРРР ГГ:ХХ" required></td>
-                <td><input type="text" id="session-price" placeholder="Ціна" required></td>
-                <td><input type="text" id="session-tech" placeholder="Технологія" required></td>
-                <td><button class="btn-add" onclick="addSession()">Додати</button></td>
+                <td><input type="text" id="session-datetime" placeholder="ДД.ММ.РРРР ГГ:ХХ"></td>
+                <td><input type="text" id="session-price" placeholder="Ціна"></td>
+                <td><input type="text" id="session-tech" placeholder="Технологія"></td>
+                <td><button class="btn-add" onclick="addSessionRow()">Додати</button></td>
             </tr>
         </tbody>
     </table>
@@ -94,221 +94,182 @@
         </thead>
         <tbody id="halls-body">
             <tr class="form-row">
-                <td><input type="number" id="hall-id" placeholder="ID" required></td>
-                <td><input type="text" id="hall-name" placeholder="Назва" required></td>
-                <td><input type="text" id="hall-type" placeholder="Тип" required></td>
-                <td><input type="number" id="hall-rows" placeholder="Рядів" required></td>
-                <td><input type="number" id="hall-seats" placeholder="Місць" required></td>
+                <td><input type="number" id="hall-id" placeholder="ID"></td>
+                <td><input type="text" id="hall-name" placeholder="Назва"></td>
+                <td><input type="text" id="hall-type" placeholder="Тип"></td>
+                <td><input type="number" id="hall-rows" placeholder="Рядів"></td>
+                <td><input type="number" id="hall-seats" placeholder="Місць"></td>
                 <td>
                     <select id="hall-ac">
                         <option value="Так">Так</option>
                         <option value="Ні">Ні</option>
                     </select>
                 </td>
-                <td><button class="btn-add" onclick="addHall()">Додати</button></td>
+                <td><button class="btn-add" onclick="addHallRow()">Додати</button></td>
             </tr>
         </tbody>
     </table>
 
     <script>
-        const initialMovies = [
-            { id: "1", title: "Інтерстеллар", director: "Крістофер Нолан", genre: "Наукова фантастика", duration: "169", year: "2014", age: "12+" },
-            { id: "2", title: "Дюна: Частина друга", director: "Дені Вільньов", genre: "Фантастика, пригоди", duration: "166", year: "2024", age: "16+" }
-        ];
+        // Базова HTML-версія таблиць для першого запуску
+        const defaultMoviesHTML = `
+            <tr><td>1</td><td class="editable" onclick="makeEditable(this)">Інтерстеллар</td><td>Крістофер Нолан</td><td>Наукова фантастика</td><td>169</td><td>2014</td><td>12+</td><td><button class="btn-delete" onclick="deleteMovieRow(this)">❌</button></td></tr>
+            <tr><td>2</td><td class="editable" onclick="makeEditable(this)">Дюна: Частина друга</td><td>Дені Вільньов</td><td>Фантастика, пригоди</td><td>166</td><td>2024</td><td>16+</td><td><button class="btn-delete" onclick="deleteMovieRow(this)">❌</button></td></tr>`;
+        
+        const defaultSessionsHTML = `
+            <tr><td>101</td><td>Дюна: Частина друга</td><td>Зал 1 (VIP)</td><td>01.10.2026 19:00</td><td>250 грн</td><td>IMAX</td><td><button class="btn-delete" onclick="deleteSessionRow(this)">❌</button></td></tr>
+            <tr><td>102</td><td>Інтерстеллар</td><td>Зал 2</td><td>01.10.2026 21:30</td><td>150 грн</td><td>2D</td><td><button class="btn-delete" onclick="deleteSessionRow(this)">❌</button></td></tr>`;
+        
+        const defaultHallsHTML = `
+            <tr><td>1</td><td class="editable" onclick="makeEditable(this)">Зал 1 (VIP)</td><td>VIP</td><td>5</td><td>50</td><td>Так</td><td><button class="btn-delete" onclick="deleteHallRow(this)">❌</button></td></tr>
+            <tr><td>2</td><td class="editable" onclick="makeEditable(this)">Зал 2</td><td>Стандарт</td><td>12</td><td>144</td><td>Так</td><td><button class="btn-delete" onclick="deleteHallRow(this)">❌</button></td></tr>`;
 
-        const initialSessions = [
-            { id: "101", title: "Дюна: Частина друга", hall: "Зал 1 (VIP)", datetime: "01.10.2026 19:00", price: "250 грн", tech: "IMAX" },
-            { id: "102", title: "Інтерстеллар", hall: "Зал 2", datetime: "01.10.2026 21:30", price: "150 грн", tech: "2D" }
-        ];
+        // Завантаження стану при старті сторінки
+        function initData() {
+            if (!localStorage.getItem('lab4_movies_html')) {
+                localStorage.setItem('lab4_movies_html', defaultMoviesHTML);
+                localStorage.setItem('lab4_sessions_html', defaultSessionsHTML);
+                localStorage.setItem('lab4_halls_html', defaultHallsHTML);
+            }
 
-        const initialHalls = [
-            { id: "1", name: "Зал 1 (VIP)", type: "VIP", rows: "5", seats: "50", ac: "Так" },
-            { id: "2", name: "Зал 2", type: "Стандарт", rows: "12", seats: "144", ac: "Так" }
-        ];
-
-        let movies = JSON.parse(localStorage.getItem('movies')) || initialMovies;
-        let sessions = JSON.parse(localStorage.getItem('sessions')) || initialSessions;
-        let halls = JSON.parse(localStorage.getItem('halls')) || initialHalls;
-
-        function saveToStorage() {
-            localStorage.setItem('movies', JSON.stringify(movies));
-            localStorage.setItem('sessions', JSON.stringify(sessions));
-            localStorage.setItem('halls', JSON.stringify(halls));
-            updateSelectOptions();
+            // Рендеримо збережений контент
+            renderFromStorage();
         }
 
-        function updateSelectOptions() {
-            const titleSelect = document.getElementById('session-title-select');
-            const hallSelect = document.getElementById('session-hall-select');
-            if(titleSelect) titleSelect.innerHTML = movies.map(m => `<option value="${m.title}">${m.title}</option>`).join('');
-            if(hallSelect) hallSelect.innerHTML = halls.map(h => `<option value="${h.name}">${h.name}</option>`).join('');
+        function renderFromStorage() {
+            // Очищуємо старі рядки, крім форми
+            removeDataRows('movies-body');
+            removeDataRows('sessions-body');
+            removeDataRows('halls-body');
+
+            // Вставляємо контент із localStorage
+            document.getElementById('movies-body').insertAdjacentHTML('beforeend', localStorage.getItem('lab4_movies_html') || '');
+            document.getElementById('sessions-body').insertAdjacentHTML('beforeend', localStorage.getItem('lab4_sessions_html') || '');
+            document.getElementById('halls-body').insertAdjacentHTML('beforeend', localStorage.getItem('lab4_halls_html') || '');
+
+            rebuildDropdowns();
         }
 
-        function renderTables() {
-            const moviesBody = document.getElementById('movies-body');
-            document.querySelectorAll('#movies-body tr:not(.form-row)').forEach(tr => tr.remove());
-            movies.forEach((m, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${m.id}</td>
-                    <td class="editable" onclick="editCell(event, ${index}, 'movies', 'title')">${m.title}</td>
-                    <td>${m.director}</td>
-                    <td>${m.genre}</td>
-                    <td>${m.duration}</td>
-                    <td>${m.year}</td>
-                    <td>${m.age}</td>
-                    <td><button class="btn-delete" onclick="deleteMovie(${index})">❌</button></td>
-                `;
-                moviesBody.appendChild(tr);
-            });
-
-            const sessionsBody = document.getElementById('sessions-body');
-            document.querySelectorAll('#sessions-body tr:not(.form-row)').forEach(tr => tr.remove());
-            sessions.forEach((s, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${s.id}</td>
-                    <td>${s.title}</td>
-                    <td>${s.hall}</td>
-                    <td>${s.datetime}</td>
-                    <td>${s.price}</td>
-                    <td>${s.tech}</td>
-                    <td><button class="btn-delete" onclick="deleteSession(${index})">❌</button></td>
-                `;
-                sessionsBody.appendChild(tr);
-            });
-
-            const hallsBody = document.getElementById('halls-body');
-            document.querySelectorAll('#halls-body tr:not(.form-row)').forEach(tr => tr.remove());
-            halls.forEach((h, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${h.id}</td>
-                    <td class="editable" onclick="editCell(event, ${index}, 'halls', 'name')">${h.name}</td>
-                    <td>${h.type}</td>
-                    <td>${h.rows}</td>
-                    <td>${h.seats}</td>
-                    <td>${h.ac}</td>
-                    <td><button class="btn-delete" onclick="deleteHall(${index})">❌</button></td>
-                `;
-                hallsBody.appendChild(tr);
-            });
-
-            updateSelectOptions();
+        function removeDataRows(bodyId) {
+            const body = document.getElementById(bodyId);
+            const rows = body.querySelectorAll('tr:not(.form-row)');
+            rows.forEach(r => r.remove());
         }
 
-        function editCell(e, index, type, key) {
-            const cell = e.target;
-            if (cell.querySelector('input')) return;
+        // Автоматичне перескладання списків вибору фільмів та залів для форми сеансів
+        function rebuildDropdowns() {
+            const movieTitles = Array.from(document.querySelectorAll('#movies-body tr:not(.form-row)')).map(tr => tr.cells[1].innerText);
+            const hallNames = Array.from(document.querySelectorAll('#halls-body tr:not(.form-row)')).map(tr => tr.cells[1].innerText);
 
-            const originalValue = cell.innerText;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = originalValue;
-            input.style.width = "90%";
+            document.getElementById('session-title-select').innerHTML = movieTitles.map(t => `<option value="${t}">${t}</option>`).join('');
+            document.getElementById('session-hall-select').innerHTML = hallNames.map(h => `<option value="${h}">${h}</option>`).join('');
+        }
 
-            cell.innerHTML = '';
-            cell.appendChild(input);
-            input.focus();
+        function syncAndSave() {
+            const mHTML = Array.from(document.querySelectorAll('#movies-body tr:not(.form-row)')).map(tr => tr.outerHTML).join('');
+            const sHTML = Array.from(document.querySelectorAll('#sessions-body tr:not(.form-row)')).map(tr => tr.outerHTML).join('');
+            const hHTML = Array.from(document.querySelectorAll('#halls-body tr:not(.form-row)')).map(tr => tr.outerHTML).join('');
 
-            function save() {
-                const newValue = input.value.trim();
-                if (newValue && newValue !== originalValue) {
-                    if (type === 'movies') {
-sessions.forEach(s => { if (s.title === movies[index].title) s.title = newValue; });
-movies[index][key] = newValue;
-} else if (type === 'halls') {
-sessions.forEach(s => { if (s.hall === halls[index].name) s.hall = newValue; });
-halls[index][key] = newValue;
+            localStorage.setItem('lab4_movies_html', mHTML);
+            localStorage.setItem('lab4_sessions_html', sHTML);
+            localStorage.setItem('lab4_halls_html', hHTML);
+            
+            // Тригеримо подію оновлення для синхронізації
+            localStorage.setItem('lab4_sync_trigger', Date.now());
+            rebuildDropdowns();
+        }
+
+        // ДОДАВАННЯ РЯДКІВ
+        function addMovieRow() {
+            const id = document.getElementById('movie-id').value;
+            const title = document.getElementById('movie-title').value;
+            const director = document.getElementById('movie-director').value;
+            const genre = document.getElementById('movie-genre').value;
+            const duration = document.getElementById('movie-duration').value;
+            const year = document.getElementById('movie-year').value;
+            const age = document.getElementById('movie-age').value;
+
+if (!id || !title || !director || !genre || !duration || !year || !age) return alert('Заповніть абсолютно всі поля фільму!');
+const html = <tr><td>${id}</td><td class="editable" onclick="makeEditable(this)">${title}</td><td>${director}</td><td>${genre}</td><td>${duration}</td><td>${year}</td><td>${age}</td><td><button class="btn-delete" onclick="deleteMovieRow(this)">❌</button></td></tr>;
+document.getElementById('movies-body').insertAdjacentHTML('beforeend', html);
+['movie-id', 'movie-title', 'movie-director', 'movie-genre', 'movie-duration', 'movie-year', 'movie-age'].forEach(i => document.getElementById(i).value = '');
+syncAndSave();
 }
-saveToStorage(); renderTables();
-} else {
-cell.innerText = originalValue;
-}
-}
-input.addEventListener('blur', save);
-input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') save(); });
-}
-function addMovie() {
-const id = document.getElementById('movie-id').value;
-const title = document.getElementById('movie-title').value;
-const director = document.getElementById('movie-director').value;
-const genre = document.getElementById('movie-genre').value;
-const duration = document.getElementById('movie-duration').value;
-const year = document.getElementById('movie-year').value;
-const age = document.getElementById('movie-age').value;
-if (!id || !title || !director || !genre || !duration || !year || !age) {
-alert('Будь ласка, заповніть ВСІ поля фільму!');
-return;
-}
-movies.push({ id, title, director, genre, duration, year, age });
-saveToStorage(); renderTables();
-['movie-id', 'movie-title', 'movie-director', 'movie-genre', 'movie-duration', 'movie-year', 'movie-age'].forEach(id => document.getElementById(id).value = '');
-}
-function addSession() {
+function addSessionRow() {
 const id = document.getElementById('session-id').value;
 const title = document.getElementById('session-title-select').value;
 const hall = document.getElementById('session-hall-select').value;
 const datetime = document.getElementById('session-datetime').value;
 const price = document.getElementById('session-price').value;
 const tech = document.getElementById('session-tech').value;
-if (!id || !title || !hall || !datetime || !price || !tech) {
-alert('Заповніть всі поля сеансу!');
-return;
+if (!id || !title || !hall || !datetime || !price || !tech) return alert('Заповніть всі поля сеансу!');
+const html = <tr><td>${id}</td><td>${title}</td><td>${hall}</td><td>${datetime}</td><td>${price}</td><td>${tech}</td><td><button class="btn-delete" onclick="deleteSessionRow(this)">❌</button></td></tr>;
+document.getElementById('sessions-body').insertAdjacentHTML('beforeend', html);
+['session-id', 'session-datetime', 'session-price', 'session-tech'].forEach(i => document.getElementById(i).value = '');
+syncAndSave();
 }
-sessions.push({ id, title, hall, datetime, price, tech });
-saveToStorage(); renderTables();
-['session-id', 'session-datetime', 'session-price', 'session-tech'].forEach(id => document.getElementById(id).value = '');
-}
-function addHall() {
+function addHallRow() {
 const id = document.getElementById('hall-id').value;
 const name = document.getElementById('hall-name').value;
 const type = document.getElementById('hall-type').value;
 const rows = document.getElementById('hall-rows').value;
 const seats = document.getElementById('hall-seats').value;
 const ac = document.getElementById('hall-ac').value;
-if (!id || !name || !type || !rows || !seats) {
-alert('Заповніть всі поля кінозалу!');
-return;
+if (!id || !name || !type || !rows || !seats) return alert('Заповніть всі поля кінозалу!');
+const html = <tr><td>${id}</td><td class="editable" onclick="makeEditable(this)">${name}</td><td>${type}</td><td>${rows}</td><td>${seats}</td><td>${ac}</td><td><button class="btn-delete" onclick="deleteHallRow(this)">❌</button></td></tr>;
+document.getElementById('halls-body').insertAdjacentHTML('beforeend', html);
+['hall-id', 'hall-name', 'hall-type', 'hall-rows', 'hall-seats'].forEach(i => document.getElementById(i).value = '');
+syncAndSave();
 }
-halls.push({ id, name, type, rows, seats, ac });
-saveToStorage(); renderTables();
-['hall-id', 'hall-name', 'hall-type', 'hall-rows', 'hall-seats'].forEach(id => document.getElementById(id).value = '');
-}
-function deleteMovie(index) {
-const movieTitle = movies[index].title;
-if (sessions.some(s => s.title === movieTitle)) {
-alert(Помилка! Фільм "${movieTitle}" використовується в розкладі сеансів!);
+// ВИДАЛЕННЯ З ПЕРЕВІРКОЮ ЗВ’ЯЗКІВ
+function deleteMovieRow(btn) {
+const row = btn.closest('tr');
+const title = row.cells[1].innerText;
+const sessionTitles = Array.from(document.querySelectorAll('#sessions-body tr:not(.form-row)')).map(tr => tr.cells[1].innerText);
+if (sessionTitles.includes(title)) {
+alert(Помилка видалення! Фільм "${title}" призначений на один або кілька активних сеансів!);
 } else {
-movies.splice(index, 1); saveToStorage(); renderTables();
+row.remove(); syncAndSave();
 }
 }
-function deleteHall(index) {
-const hallName = halls[index].name;
-if (sessions.some(s => s.hall === hallName)) {
-alert(Помилка! Кінозал "${hallName}" наразі має заплановані сеанси!);
+function deleteHallRow(btn) {
+const row = btn.closest('tr');
+const name = row.cells[1].innerText;
+const sessionHalls = Array.from(document.querySelectorAll('#sessions-body tr:not(.form-row)')).map(tr => tr.cells[2].innerText);
+if (sessionHalls.includes(name)) {
+alert(Помилка видалення! У кінозалі "${name}" наразі проводяться активні сеанси!);
 } else {
-halls.splice(index, 1); saveToStorage(); renderTables();
+row.remove(); syncAndSave();
 }
 }
-function deleteSession(index) {
-sessions.splice(index, 1); saveToStorage(); renderTables();
+function deleteSessionRow(btn) {
+btn.closest('tr').remove(); syncAndSave();
 }
-function resetAllData() {
-localStorage.clear();
-movies = [...initialMovies];
-sessions = [...initialSessions];
-halls = [...initialHalls];
-saveToStorage();
-renderTables();
-alert('Пам'ять успішно очищено! Базові дані відновлено.');
+// РЕДАГУВАННЯ КЛІКОМ ТА ЗБЕРЕЖЕННЯМ БЕЗ ПОМИЛОК СТРУКТУРИ
+function makeEditable(cell) {
+if (cell.querySelector('input')) return;
+const oldVal = cell.innerText;
+const input = document.createElement('input');
+input.type = 'text'; input.value = oldVal; input.style.width = "90%";
+cell.innerHTML = ''; cell.appendChild(input); input.focus();
+function finish() {
+const newVal = input.value.trim();
+cell.innerHTML = newVal || oldVal;
+syncAndSave();
 }
-window.addEventListener('storage', (e) => {
-if (['movies', 'sessions', 'halls'].includes(e.key)) {
-movies = JSON.parse(localStorage.getItem('movies')) || initialMovies;
-sessions = JSON.parse(localStorage.getItem('sessions')) || initialSessions;
-halls = JSON.parse(localStorage.getItem('halls')) || initialHalls;
-renderTables();
+input.onblur = finish;
+input.onkeydown = function(e) { if (e.key === 'Enter') finish(); };
 }
+// КНОПКА СКИДАННЯ
+function resetToDefault() {
+localStorage.setItem('lab4_movies_html', defaultMoviesHTML);
+localStorage.setItem('lab4_sessions_html', defaultSessionsHTML);
+localStorage.setItem('lab4_halls_html', defaultHallsHTML);
+renderFromStorage();
+alert('Пам'ять очищено! Базові дані успішно завантажено!');
+}
+// СИНХРОНІЗАЦІЯ ВКЛАДОК КЛІЄНТА
+window.addEventListener('storage', () => {
+renderFromStorage();
 });
-renderTables();
+initData();
