@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторна робота №1 - Кінотеатр</title>
+    <style>
+        /* Базові стилі для табів, щоб ними можна було зручно користуватися */
+        .tab-buttons {
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            font-size: 16px;
+        }
+        .tab-btn.active {
+            background-color: #ddd;
+            font-weight: bold;
+            border-bottom: 1px solid transparent;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Управління кінотеатром</h1>
+
+    <!-- Кнопки для перемикання табів -->
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="openTab(event, 'movies-tab')">Фільми</button>
+        <button class="tab-btn" onclick="openTab(event, 'sessions-tab')">Сеанси</button>
+        <button class="tab-btn" onclick="openTab(event, 'halls-tab')">Кінозали</button>
+    </div>
+
+    <!-- Таблиця 1: Фільми -->
+    <div id="movies-tab" class="tab-content active">
+        <h2>Список фільмів</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назва фільму</th>
+                    <th>Режисер</th>
+                    <th>Жанр</th>
+                    <th>Тривалість (хв)</th>
+                    <th>Рік випуску</th>
+                    <th>Вікове обмеження</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Інтерстеллар</td>
+                    <td>Крістофер Нолан</td>
+                    <td>Наукова фантастика</td>
+                    <td>169</td>
+                    <td>2014</td>
+                    <td>12+</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Дюна: Частина друга</td>
+                    <td>Дені Вільньов</td>
+                    <td>Фантастика, пригоди</td>
+                    <td>166</td>
+                    <td>2024</td>
+                    <td>16+</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Таблиця 2: Сеанси -->
+    <div id="sessions-tab" class="tab-content">
+        <h2>Розклад сеансів</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID сеансу</th>
+                    <th>Назва фільму</th>
+                    <th>Номер залу</th>
+                    <th>Дата та час</th>
+                    <th>Ціна квитка</th>
+                    <th>Технологія</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>101</td>
+                    <td>Дюна: Частина друга</td>
+                    <td>Зал 1 (VIP)</td>
+                    <td>01.10.2026 19:00</td>
+                    <td>250 грн</td>
+                    <td>IMAX</td>
+                </tr>
+                <tr>
+                    <td>102</td>
+                    <td>Інтерстеллар</td>
+                    <td>Зал 2</td>
+                    <td>01.10.2026 21:30</td>
+                    <td>150 грн</td>
+                    <td>2D</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Таблиця 3: Кінозали -->
+    <div id="halls-tab" class="tab-content">
+        <h2>Характеристики кінозалів</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID залу</th>
+                    <th>Назва / Номер</th>
+                    <th>Тип залу</th>
+                    <th>Кількість рядів</th>
+                    <th>Загальна кількість місць</th>
+                    <th>Кондиціонер</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Зал 1 (VIP)</td>
+                    <td>VIP</td>
+                    <td>5</td>
+                    <td>50</td>
+                    <td>Так</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Зал 2</td>
+                    <td>Стандарт</td>
+                    <td>12</td>
+                    <td>144</td>
+                    <td>Так</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Логіка перемикання табів за допомогою JavaScript -->
+    <script>
+        function openTab(event, tabId) {
+            // Отримуємо всі елементи з класом "tab-content" та ховаємо їх
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            // Отримуємо всі кнопки з класом "tab-btn" та прибираємо у них активний статус
+            const tabButtons = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+
+            // Показуємо поточний вибраний таб та робимо кнопку активною
+            document.getElementById(tabId).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+    </script>
+
+</body>
+</html>
