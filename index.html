@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Управління кінотеатром - Лабораторна №3</title>
+    <title>Управління кінотеатром - Лабораторна №4</title>
     <style>
         body { font-family: sans-serif; margin: 20px; }
         table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <h1>Управління кінотеатром (Лабораторна №3)</h1>
+    <h1>Управління кінотеатром (Лабораторна №4)</h1>
 
     <!-- ТАБЛИЦЯ 1: ФІЛЬМИ -->
     <h2>Список фільмів</h2>
@@ -35,7 +35,7 @@
                 <th>Дія</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="movies-body">
             <tr class="form-row">
                 <td><input type="number" id="movie-id" placeholder="ID" required></td>
                 <td><input type="text" id="movie-title" placeholder="Назва" required></td>
@@ -46,26 +46,6 @@
                 <td><input type="text" id="movie-age" placeholder="Обмеження" required></td>
                 <td><button class="btn-add" onclick="addMovie()">Додати</button></td>
             </tr>
-            <tr>
-                <td>1</td>
-                <td class="editable" onclick="makeEditable(this)">Інтерстеллар</td>
-                <td>Крістофер Нолан</td>
-                <td>Наукова фантастика</td>
-                <td>169</td>
-                <td>2014</td>
-                <td>12+</td>
-                <td><button class="btn-delete" onclick="deleteMovie(this)">❌</button></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td class="editable" onclick="makeEditable(this)">Дюна: Частина друга</td>
-                <td>Дені Вільньов</td>
-                <td>Фантастика, пригоди</td>
-                <td>166</td>
-                <td>2024</td>
-                <td>16+</td>
-                <td><button class="btn-delete" onclick="deleteMovie(this)">❌</button></td>
-            </tr>
         </tbody>
     </table>
 
@@ -75,41 +55,23 @@
         <thead>
             <tr>
                 <th>ID сеансу</th>
-                <th>Назва фільму</th>
-                <th>Номер залу</th>
+                <th>Назва фільму (вибір зі списку)</th>
+                <th>Номер залу (вибір зі списку)</th>
                 <th>Дата та час</th>
                 <th>Ціна квитка</th>
                 <th>Технологія</th>
                 <th>Дія</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="sessions-body">
             <tr class="form-row">
                 <td><input type="number" id="session-id" placeholder="ID" required></td>
-                <td><input type="text" id="session-title" placeholder="Назва фільму" required></td>
-                <td><input type="text" id="session-hall" placeholder="Зал" required></td>
+                <td><select id="session-title-select"></select></td>
+                <td><select id="session-hall-select"></select></td>
                 <td><input type="text" id="session-datetime" placeholder="ДД.ММ.РРРР ГГ:ХХ" required></td>
                 <td><input type="text" id="session-price" placeholder="Ціна" required></td>
                 <td><input type="text" id="session-tech" placeholder="Технологія" required></td>
                 <td><button class="btn-add" onclick="addSession()">Додати</button></td>
-            </tr>
-            <tr>
-                <td>101</td>
-                <td>Дюна: Частина друга</td>
-                <td>Зал 1 (VIP)</td>
-                <td>01.10.2026 19:00</td>
-                <td>250 грн</td>
-                <td>IMAX</td>
-                <td><button class="btn-delete" onclick="deleteSession(this)">❌</button></td>
-            </tr>
-            <tr>
-                <td>102</td>
-                <td>Інтерстеллар</td>
-                <td>Зал 2</td>
-                <td>01.10.2026 21:30</td>
-                <td>150 грн</td>
-                <td>2D</td>
-                <td><button class="btn-delete" onclick="deleteSession(this)">❌</button></td>
             </tr>
         </tbody>
     </table>
@@ -128,7 +90,7 @@
                 <th>Дія</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="halls-body">
             <tr class="form-row">
                 <td><input type="number" id="hall-id" placeholder="ID" required></td>
                 <td><input type="text" id="hall-name" placeholder="Назва" required></td>
@@ -143,156 +105,165 @@
                 </td>
                 <td><button class="btn-add" onclick="addHall()">Додати</button></td>
             </tr>
-            <tr>
-                <td>1</td>
-                <td class="editable" onclick="makeEditable(this)">Зал 1 (VIP)</td>
-                <td>VIP</td>
-                <td>5</td>
-                <td>50</td>
-                <td>Так</td>
-                <td><button class="btn-delete" onclick="deleteHall(this)">❌</button></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td class="editable" onclick="makeEditable(this)">Зал 2</td>
-                <td>Стандарт</td>
-                <td>12</td>
-                <td>144</td>
-                <td>Так</td>
-                <td><button class="btn-delete" onclick="deleteHall(this)">❌</button></td>
-            </tr>
         </tbody>
     </table>
 
     <script>
-        function clearInputs(ids) {
-            ids.forEach(id => document.getElementById(id).value = '');
+        // Початкові дані (базовий стан програми)
+        const initialMovies = [
+            { id: "1", title: "Інтерстеллар", director: "Крістофер Нолан", genre: "Наукова фантастика", duration: "169", year: "2014", age: "12+" },
+            { id: "2", title: "Дюна: Частина друга", director: "Дені Вільньов", genre: "Фантастика, пригоди", duration: "166", year: "2024", age: "16+" }
+        ];
+
+        const initialSessions = [
+            { id: "101", title: "Дюна: Частина друга", hall: "Зал 1 (VIP)", datetime: "01.10.2026 19:00", price: "250 грн", tech: "IMAX" },
+            { id: "102", title: "Інтерстеллар", hall: "Зал 2", datetime: "01.10.2026 21:30", price: "150 грн", tech: "2D" }
+        ];
+
+        const initialHalls = [
+            { id: "1", name: "Зал 1 (VIP)", type: "VIP", rows: "5", seats: "50", ac: "Так" },
+            { id: "2", name: "Зал 2", type: "Стандарт", rows: "12", seats: "144", ac: "Так" }
+        ];
+
+        // Ініціалізація даних з localStorage або використання початкових
+        let movies = JSON.parse(localStorage.getItem('movies')) || initialMovies;
+        let sessions = JSON.parse(localStorage.getItem('sessions')) || initialSessions;
+        let halls = JSON.parse(localStorage.getItem('halls')) || initialHalls;
+
+        function saveToStorage() {
+            localStorage.setItem('movies', JSON.stringify(movies));
+            localStorage.setItem('sessions', JSON.stringify(sessions));
+            localStorage.setItem('halls', JSON.stringify(halls));
+            updateSelectOptions();
         }
 
-        // --- ЛОГІКА РЕДАГУВАННЯ КОМІРОК ---
-        function makeEditable(cell) {
+        // Оновлення випадних списків для форми Сеансів
+        function updateSelectOptions() {
+            const titleSelect = document.getElementById('session-title-select');
+            const hallSelect = document.getElementById('session-hall-select');
+
+            titleSelect.innerHTML = movies.map(m => `<option value="${m.title}">${m.title}</option>`).join('');
+            hallSelect.innerHTML = halls.map(h => `<option value="${h.name}">${h.name}</option>`).join('');
+        }
+
+        // Відображення таблиць
+        function renderTables() {
+            // Фільми
+            const moviesBody = document.getElementById('movies-body');
+            document.querySelectorAll('#movies-body tr:not(.form-row)').forEach(tr => tr.remove());
+            movies.forEach((m, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${m.id}</td>
+                    <td class="editable" onclick="editCell(${index}, 'movies', 'title')">${m.title}</td>
+                    <td>${m.director}</td>
+                    <td>${m.genre}</td>
+                    <td>${m.duration}</td>
+                    <td>${m.year}</td>
+                    <td>${m.age}</td>
+                    <td><button class="btn-delete" onclick="deleteMovie(${index})">❌</button></td>
+                `;
+                moviesBody.appendChild(tr);
+            });
+
+            // Сеанси
+            const sessionsBody = document.getElementById('sessions-body');
+            document.querySelectorAll('#sessions-body tr:not(.form-row)').forEach(tr => tr.remove());
+            sessions.forEach((s, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${s.id}</td>
+                    <td>${s.title}</td>
+                    <td>${s.hall}</td>
+                    <td>${s.datetime}</td>
+                    <td>${s.price}</td>
+                    <td>${s.tech}</td>
+                    <td><button class="btn-delete" onclick="deleteSession(${index})">❌</button></td>
+                `;
+                sessionsBody.appendChild(tr);
+            });
+
+            // Кінозали
+            const hallsBody = document.getElementById('halls-body');
+            document.querySelectorAll('#halls-body tr:not(.form-row)').forEach(tr => tr.remove());
+            halls.forEach((h, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${h.id}</td>
+                    <td class="editable" onclick="editCell(${index}, 'halls', 'name')">${h.name}</td>
+                    <td>${h.type}</td>
+                    <td>${h.rows}</td>
+                    <td>${h.seats}</td>
+                    <td>${h.ac}</td>
+                    <td><button class="btn-delete" onclick="deleteHall(${index})">❌</button></td>
+                `;
+                hallsBody.appendChild(tr);
+            });
+
+            updateSelectOptions();
+        }
+
+        // РЕДАГУВАННЯ КЛІКОМ
+        function editCell(index, type, key) {
+            const cell = event.target;
             if (cell.querySelector('input')) return;
 
-            const originalText = cell.innerText;
+            const originalValue = cell.innerText;
             const input = document.createElement('input');
             input.type = 'text';
-            input.value = originalText;
+            input.value = originalValue;
             input.style.width = "90%";
 
             cell.innerHTML = '';
             cell.appendChild(input);
             input.focus();
 
-            function saveChanges() {
-                const newText = input.value.trim();
-                if (newText) {
-                    cell.innerText = newText;
-                } else {
-                    cell.innerText = originalText;
-                }
-            }
-
-            input.addEventListener('blur', saveChanges);
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') saveChanges();
-            });
-        }
-
-        // --- ЛОГІКА ПЕРЕВІРКИ ЗВ'ЯЗКІВ ТА ВИДАЛЕННЯ ---
-        function deleteMovie(button) {
-            const row = button.closest('tr');
-            const movieTitle = row.cells[1].innerText;
-
-            const sessionRows = document.querySelectorAll('#sessions-table tbody tr:not(.form-row)');
-            let isLinked = false;
-
-            sessionRows.forEach(sRow => {
-                if (sRow.cells[1].innerText.trim() === movieTitle.trim()) {
-                    isLinked = true;
-                }
-            });
-
-            if (isLinked) {
-                alert(`Помилка! Фільм "${movieTitle}" наразі неможливо видалити, оскільки він використовується в розкладі сеансів!`);
-            } else {
-                row.remove();
-            }
-        }
-
-        function deleteHall(button) {
-            const row = button.closest('tr');
-            const hallName = row.cells[1].innerText;
-
-            const sessionRows = document.querySelectorAll('#sessions-table tbody tr:not(.form-row)');
-            let isLinked = false;
-
-            sessionRows.forEach(sRow => {
-                if (sRow.cells[2].innerText.trim() === hallName.trim()) {
-                    isLinked = true;
-                }
-            });
-
-            if (isLinked) {
-                alert(`Помилка! Кінозал "${hallName}" наразі неможливо видалити, оскільки в ньому призначені сеанси!`);
-            } else {
-                row.remove();
-            }
-        }
-
-        function deleteSession(button) {
-            button.closest('tr').remove();
-        }
-
-        // --- ДОДАВАННЯ ДАНИХ ---
-        function addMovie() {
-            const id = document.getElementById('movie-id').value;
-            const title = document.getElementById('movie-title').value;
-            const director = document.getElementById('movie-director').value;
-            const genre = document.getElementById('movie-genre').value;
-            const duration = document.getElementById('movie-duration').value;
+            function save() {
+                const newValue = input.value.trim();
+                if (newValue && newValue !== originalValue) {
+if (type === 'movies') {
+// Оновлюємо також прив'язані сеанси
+sessions.forEach(s => { if (s.title === movies[index].title) s.title = newValue; });
+movies[index][key] = newValue;
+} else if (type === 'halls') {
+// Оновлюємо також прив'язані сеанси
+sessions.forEach(s => { if (s.hall === halls[index].name) s.hall = newValue; });
+halls[index][key] = newValue;
+}
+saveToStorage();
+renderTables();
+} else {
+cell.innerText = originalValue;
+}
+}
+input.addEventListener('blur', save);
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
+}
+// ДОДАВАННЯ
+function addMovie() {
+const id = document.getElementById('movie-id').value;
+const title = document.getElementById('movie-title').value;
+const director = document.getElementById('movie-director').value;
+const genre = document.getElementById('movie-genre').value;
+const duration = document.getElementById('movie-duration').value;
 const year = document.getElementById('movie-year').value;
 const age = document.getElementById('movie-age').value;
-if (!id || !title || !director || !genre || !duration || !year || !age) {
-alert('Заповніть всі поля!'); return;
-}
-const tableBody = document.querySelector('#movies-table tbody');
-const newRow = document.createElement('tr');
-newRow.innerHTML = `
-${id}
-${title}
-${director}
-${genre}
-${duration}
-${year}
-${age}
-❌
-`;
-tableBody.appendChild(newRow);
-clearInputs(['movie-id', 'movie-title', 'movie-director', 'movie-genre', 'movie-duration', 'movie-year', 'movie-age']);
+if (!id || !title || !director || !genre || !duration || !year || !age) return alert('Заповніть поля!');
+movies.push({ id, title, director, genre, duration, year, age });
+saveToStorage(); renderTables();
+['movie-id', 'movie-title', 'movie-director', 'movie-genre', 'movie-duration', 'movie-year', 'movie-age'].forEach(id => document.getElementById(id).value = '');
 }
 function addSession() {
 const id = document.getElementById('session-id').value;
-const title = document.getElementById('session-title').value;
-const hall = document.getElementById('session-hall').value;
+const title = document.getElementById('session-title-select').value;
+const hall = document.getElementById('session-hall-select').value;
 const datetime = document.getElementById('session-datetime').value;
 const price = document.getElementById('session-price').value;
 const tech = document.getElementById('session-tech').value;
-if (!id || !title || !hall || !datetime || !price || !tech) {
-alert('Заповніть всі поля!'); return;
-}
-const tableBody = document.querySelector('#sessions-table tbody');
-const newRow = document.createElement('tr');
-newRow.innerHTML = `
-${id}
-${title}
-${hall}
-${datetime}
-${price}
-${tech}
-❌
-`;
-tableBody.appendChild(newRow);
-clearInputs(['session-id', 'session-title', 'session-hall', 'session-datetime', 'session-price', 'session-tech']);
+if (!id || !title || !hall || !datetime || !price || !tech) return alert('Заповніть поля!');
+sessions.push({ id, title, hall, datetime, price, tech });
+saveToStorage(); renderTables();
+['session-id', 'session-datetime', 'session-price', 'session-tech'].forEach(id => document.getElementById(id).value = '');
 }
 function addHall() {
 const id = document.getElementById('hall-id').value;
@@ -301,20 +272,39 @@ const type = document.getElementById('hall-type').value;
 const rows = document.getElementById('hall-rows').value;
 const seats = document.getElementById('hall-seats').value;
 const ac = document.getElementById('hall-ac').value;
-if (!id || !name || !type || !rows || !seats) {
-alert('Заповніть всі поля!'); return;
+if (!id || !name || !type || !rows || !seats) return alert('Заповніть поля!');
+halls.push({ id, name, type, rows, seats, ac });
+saveToStorage(); renderTables();
+['hall-id', 'hall-name', 'hall-type', 'hall-rows', 'hall-seats'].forEach(id => document.getElementById(id).value = '');
 }
-const tableBody = document.querySelector('#halls-table tbody');
-const newRow = document.createElement('tr');
-newRow.innerHTML = `
-${id}
-${name}
-${type}
-${rows}
-${seats}
-${ac}
-❌
-`;
-tableBody.appendChild(newRow);
-clearInputs(['hall-id', 'hall-name', 'hall-type', 'hall-rows', 'hall-seats']);
+// ВИДАЛЕННЯ З ПЕРЕВІРКОЮ ЗВ'ЯЗКІВ
+function deleteMovie(index) {
+const movieTitle = movies[index].title;
+if (sessions.some(s => s.title === movieTitle)) {
+alert(Помилка! Фільм "${movieTitle}" використовується в розкладі сеансів!);
+} else {
+movies.splice(index, 1); saveToStorage(); renderTables();
 }
+}
+function deleteHall(index) {
+const hallName = halls[index].name;
+if (sessions.some(s => s.hall === hallName)) {
+alert(Помилка! Кінозал "${hallName}" наразі має заплановані сеанси!);
+} else {
+halls.splice(index, 1); saveToStorage(); renderTables();
+}
+}
+function deleteSession(index) {
+sessions.splice(index, 1); saveToStorage(); renderTables();
+}
+// СИНХРОНІЗАЦІЯ МІЖ ВКЛАДКАМИ
+window.addEventListener('storage', (e) => {
+if (['movies', 'sessions', 'halls'].includes(e.key)) {
+movies = JSON.parse(localStorage.getItem('movies')) || initialMovies;
+sessions = JSON.parse(localStorage.getItem('sessions')) || initialSessions;
+halls = JSON.parse(localStorage.getItem('halls')) || initialHalls;
+renderTables();
+}
+});
+// Перший запуск сторінки
+renderTables();
