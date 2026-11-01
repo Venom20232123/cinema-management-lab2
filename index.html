@@ -223,24 +223,37 @@ syncAndSave();
 }
 // ВИДАЛЕННЯ З ПЕРЕВІРКОЮ ЗВ’ЯЗКІВ
 function deleteMovieRow(btn) {
-const row = btn.closest('tr');
-const title = row.cells[1].innerText;
-const sessionTitles = Array.from(document.querySelectorAll('#sessions-body tr:not(.form-row)')).map(tr => tr.cells[1].innerText);
-if (sessionTitles.includes(title)) {
-alert(Помилка видалення! Фільм "${title}" призначений на один або кілька активних сеансів!);
-} else {
-row.remove(); syncAndSave();
+    const row = btn.closest('tr');
+    const title = row.cells[1].innerText.trim();
+    
+    // 1. Отримуємо тексти всіх фільмів із таблиці сеансів (замініть селектор на ваш, якщо треба)
+    const sessionTitles = Array.from(document.querySelectorAll('#sessionTable td:nth-child(2)'))
+                               .map(el => el.innerText.trim());
+    
+    // 2. Використовуємо правильні зворотні лапки для alert
+    if (sessionTitles.includes(title)) {
+        alert(`Помилка видалення! Фільм "${title}" призначений для чинного сеансу.`);
+    } else {
+        row.remove(); 
+        syncAndSave();
+    }
 }
-}
+
 function deleteHallRow(btn) {
-const row = btn.closest('tr');
-const name = row.cells[1].innerText;
-const sessionHalls = Array.from(document.querySelectorAll('#sessions-body tr:not(.form-row)')).map(tr => tr.cells[2].innerText);
-if (sessionHalls.includes(name)) {
-alert(Помилка видалення! У кінозалі "${name}" наразі проводяться активні сеанси!);
-} else {
-row.remove(); syncAndSave();
-}
+    const row = btn.closest('tr');
+    const name = row.cells[1].innerText.trim();
+    
+    // 1. Отримуємо тексти всіх залів із таблиці сеансів (замініть селектор на ваш, якщо треба)
+    const sessionHalls = Array.from(document.querySelectorAll('#sessionTable td:nth-child(3)'))
+                              .map(el => el.innerText.trim());
+    
+    // 2. Використовуємо правильні зворотні лапки для alert
+    if (sessionHalls.includes(name)) {
+        alert(`Помилка видалення! У кінозалі "${name}" наразі заплановано сеанси.`);
+    } else {
+        row.remove(); 
+        syncAndSave();
+    }
 }
 function deleteSessionRow(btn) {
 btn.closest('tr').remove(); syncAndSave();
